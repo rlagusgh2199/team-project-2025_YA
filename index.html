@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 교내 길찾기</title>
+    <style>
+        /* 1. 기본 세팅 (Dark Theme) */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #111;
+            color: #fff;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden; /* 스크롤 방지 (키오스크 느낌) */
+        }
+
+        /* 2. 레이아웃 컨테이너 */
+        .container {
+            width: 100%;
+            max-width: 600px; /* 세로형 키오스크 폭 제한 */
+            height: 100%;
+            padding: 40px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        /* 3. 헤더 디자인 */
+        h1 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #00ff88; /* 네온 그린 포인트 */
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+        p.subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 50px;
+            font-size: 1.2rem;
+        }
+
+        /* 4. 입력 폼 디자인 */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        label {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        input {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.5rem;
+            border: 2px solid #333;
+            border-radius: 15px;
+            background-color: #222;
+            color: #fff;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+        }
+
+        /* 5. 실행 버튼 (가장 중요) */
+        button#searchBtn {
+            width: 100%;
+            padding: 25px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            border: none;
+            border-radius: 15px;
+            color: #000;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+            transition: transform 0.1s;
+        }
+
+        button#searchBtn:active {
+            transform: scale(0.98);
+        }
+
+        /* 6. 결과창 (AI 답변 영역) */
+        #resultArea {
+            flex-grow: 1;
+            background-color: #222;
+            border-radius: 15px;
+            padding: 30px;
+            font-size: 1.4rem;
+            line-height: 1.6;
+            border: 1px solid #444;
+            overflow-y: auto;
+            white-space: pre-wrap; /* 줄바꿈 적용 */
+            display: none; /* 처음엔 숨김 */
+        }
+
+        /* 로딩 애니메이션 */
+        .loader {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #00ff88;
+            display: none;
+            margin-top: 30px;
+        }
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🏫 Campus AI Navi</h1>
+        <p class="subtitle">어디로 갈까요? AI가 최적의 경로를 알려줍니다.</p>
+
+        <div class="input-group">
+            <div>
+                <label for="startNode">출발지 (Start)</label>
+                <input type="text" id="startNode" placeholder="예: 정문, 1호관">
+            </div>
+            <div>
+                <label for="endNode">도착지 (Destination)</label>
+                <input type="text" id="endNode" placeholder="예: 구내식당, 도서관">
+            </div>
+        </div>
+
+        <button id="searchBtn" onclick="findPath()">🚀 길 찾기 시작</button>
+
+        <div id="loader" class="loader">
+            AI가 최적 경로를 계산 중입니다<span class="blink">...</span>
+        </div>
+
+        <div id="resultArea"></div>
+    </div>
+
+    <script>
+        async function findPath() {
+            const start = document.getElementById('startNode').value;
+            const end = document.getElementById('endNode').value;
+            const resultDiv = document.getElementById('resultArea');
+            const loader = document.getElementById('loader');
+
+            if (!start || !end) {
+                alert("출발지와 도착지를 모두 입력해주세요!");
+                return;
+            }
+
+            // 1. UI 초기화 (로딩 시작)
+            resultDiv.style.display = 'none';
+            resultDiv.innerText = "";
+            loader.style.display = 'block';
+
+            // ---------------------------------------------------------
+            // [백엔드 연동 파트]
+            // 실제 API가 완성되면 아래 주석을 풀고 fetch 부분을 쓰면 됨.
+            // ---------------------------------------------------------
+            /*
+            try {
+                const response = await fetch('http://localhost:5000/ask', { // 백엔드 주소 확인 필요
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ start: start, end: end })
+                });
+                const data = await response.json();
+                const aiResponse = data.result; // 백엔드에서 주는 키값(result) 확인 필요
+            */
+
+            // ---------------------------------------------------------
+            // [시연용 가짜 데이터] (백엔드 터졌을 때를 대비한 안전장치)
+            // ---------------------------------------------------------
+
+            // 2초 딜레이 (AI 생각하는 척)
+            await new Promise(r => setTimeout(r, 2000));
+
+            // 가짜 응답 텍스트 (시연할 때 백엔드 안되면 이거라도 보여줘)
+            const aiResponse = `[AI 경로 분석 완료]\n\n📍 출발: ${start}\n🚩 도착: ${end}\n\n1. ${start}에서 나와서 중앙 분수대까지 직진하세요 (약 50m).\n2. 분수대 오른쪽 '학생회관' 사이 샛길로 들어가세요.\n3. 언덕을 조금 올라가면 ${end}이 보입니다.\n\n💡 팁: 지금 학생회관 쪽이 공사 중이니 우회하는 게 빠를 수도 있어요!`;
+
+            // ---------------------------------------------------------
+
+            // 3. 결과 출력 (타이핑 효과)
+            loader.style.display = 'none';
+            resultDiv.style.display = 'block';
+            typeWriter(aiResponse, resultDiv);
+
+            // } catch (error) { ... 에러처리 }
+        }
+
+        // 타자기 효과 함수 (AI 느낌 내기용)
+        function typeWriter(text, element) {
+            let i = 0;
+            element.innerHTML = "";
+            function type() {
+                if (i < text.length) {
+                    let char = text.charAt(i);
+                    if(char === "\n") char = "<br>"; // 줄바꿈 처리
+                    element.innerHTML += char;
+                    i++;
+                    setTimeout(type, 30); // 속도 조절
+                }
+            }
+            type();
+        }
+    </script>
+</body>
+</html>
