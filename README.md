@@ -6,3 +6,9 @@ POST /api/route : 출발지/도착지로 경로 계산 ({"from","to"})
 POST /api/ask : LLM 질의응답 ({"query": "질문"})
 GET /api/excel-format : 엑셀 컬럼 형식 안내
 GET /api/data/export : 현재 저장된 장소 데이터 JSON으로 반환
+
+ollama list
+ollama pull llama3
+
+localhost:8000/index.html
+localhost:5000

@@ -21,7 +21,7 @@ MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB 최대 파일 크기
 
 # LLM 설정 (환경 변수로 설정 가능)
 LLM_API_URL = os.environ.get('LLM_API_URL', 'http://localhost:11434/api/generate')  # Ollama 기본 URL
-LLM_MODEL = os.environ.get('LLM_MODEL', 'llama2')
+LLM_MODEL = os.environ.get('LLM_MODEL', 'llama3')
 LLM_TIMEOUT = int(os.environ.get('LLM_TIMEOUT', '30'))
 
 # 허용된 파일 확장자

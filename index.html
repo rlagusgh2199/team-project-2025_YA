@@ -131,10 +131,6 @@
 
         <div class="input-group">
             <div>
-                <label for="startNode">출발지 (Start)</label>
-                <input type="text" id="startNode" placeholder="예: 정문, 1호관">
-            </div>
-            <div>
                 <label for="endNode">도착지 (Destination)</label>
                 <input type="text" id="endNode" placeholder="예: 구내식당, 도서관">
             </div>
@@ -151,54 +147,44 @@
 
     <script>
         async function findPath() {
-            const start = document.getElementById('startNode').value;
-            const end = document.getElementById('endNode').value;
+            const destination = document.getElementById('endNode').value;
             const resultDiv = document.getElementById('resultArea');
             const loader = document.getElementById('loader');
 
-            if (!start || !end) {
-                alert("출발지와 도착지를 모두 입력해주세요!");
+            if (!destination) {
+                alert("도착지를 입력해주세요!");
                 return;
             }
 
-            // 1. UI 초기화 (로딩 시작)
+            // UI 초기화
             resultDiv.style.display = 'none';
             resultDiv.innerText = "";
             loader.style.display = 'block';
 
-            // ---------------------------------------------------------
-            // [백엔드 연동 파트]
-            // 실제 API가 완성되면 아래 주석을 풀고 fetch 부분을 쓰면 됨.
-            // ---------------------------------------------------------
-            /*
             try {
-                const response = await fetch('http://localhost:5000/ask', { // 백엔드 주소 확인 필요
+                // LLM 질의응답 API 호출 (도착지 정보만 전달)
+                const response = await fetch('http://localhost:5000/api/ask', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ start: start, end: end })
+                    body: JSON.stringify({ query: `도착지: ${destination} 위치 알려줘` })
                 });
                 const data = await response.json();
-                const aiResponse = data.result; // 백엔드에서 주는 키값(result) 확인 필요
-            */
 
-            // ---------------------------------------------------------
-            // [시연용 가짜 데이터] (백엔드 터졌을 때를 대비한 안전장치)
-            // ---------------------------------------------------------
+                loader.style.display = 'none';
+                resultDiv.style.display = 'block';
 
-            // 2초 딜레이 (AI 생각하는 척)
-            await new Promise(r => setTimeout(r, 2000));
+                if (!data.success) {
+                    resultDiv.innerText = data.error || '응답을 받지 못했습니다.';
+                    return;
+                }
 
-            // 가짜 응답 텍스트 (시연할 때 백엔드 안되면 이거라도 보여줘)
-            const aiResponse = `[AI 경로 분석 완료]\n\n📍 출발: ${start}\n🚩 도착: ${end}\n\n1. ${start}에서 나와서 중앙 분수대까지 직진하세요 (약 50m).\n2. 분수대 오른쪽 '학생회관' 사이 샛길로 들어가세요.\n3. 언덕을 조금 올라가면 ${end}이 보입니다.\n\n💡 팁: 지금 학생회관 쪽이 공사 중이니 우회하는 게 빠를 수도 있어요!`;
-
-            // ---------------------------------------------------------
-
-            // 3. 결과 출력 (타이핑 효과)
-            loader.style.display = 'none';
-            resultDiv.style.display = 'block';
-            typeWriter(aiResponse, resultDiv);
-
-            // } catch (error) { ... 에러처리 }
+                const aiResponse = data.response || '응답이 없습니다.';
+                typeWriter(aiResponse, resultDiv);
+            } catch (error) {
+                loader.style.display = 'none';
+                resultDiv.style.display = 'block';
+                resultDiv.innerText = '백엔드 호출 오류가 발생했습니다.';
+            }
         }
 
         // 타자기 효과 함수 (AI 느낌 내기용)
